@@ -24,10 +24,12 @@ public class MemoController {
 
 	@PostMapping("/createMemo")
 	public String createMemo(MemoModel memoModel) {
-		int key = 1;
+
+		memoService.createMemo(memoModel.getTitle(), memoModel.getContent());
+		// int key = 1;
 		// System.out.println(memoModel.getTitle());
 		// System.out.println(memoModel.getContent());
-		System.out.println(memoService.getMemo(key).toString());
+		// System.out.println(memoService.getMemo(key).toString());
 		return "index";
 	}
 

@@ -13,6 +13,12 @@ public class MemoService {
     @Autowired
     private DataAccessApplication daa;
 
+    public void createMemo(String title, String content) {
+
+        daa.insertMemo(title, content);
+
+    }
+
     public MemoEntity getMemo(int key) {
         // 検索
         Map<String, Object> map = daa.findMemo(key);
