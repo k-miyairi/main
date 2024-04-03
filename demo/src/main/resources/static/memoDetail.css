@@ -24,3 +24,8 @@ textarea {
     box-sizing: border-box;
     margin-left: 20px;
 }
+
+button {
+    left: 750px;
+    position: absolute;
+}
