@@ -1,2 +1,3 @@
 INSERT INTO memo(title,content)
-VALUES('Test','あいうえお');
+VALUES('Test','あいうえお'),
+('あいうえおかきくけこさしすせそたちつてと','あいうえお');

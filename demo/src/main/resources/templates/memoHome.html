@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>一覧画面</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="memo.css">
+    <link rel="stylesheet" type="text/css" href="memoHome.css">
+</head>
+
+<body>
+    <div class="container">
+        <p class="create"><a href="/toMemoCreate">新規作成</a></p>
+        <h1>一覧</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th class="col1">タイトル</th>
+                    <th class="col2">作成日時</th>
+                    <th class="col3">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="object : ${session.memolist}">
+                    <td th:text="${object.title}"></td>
+                    <td th:text="${#dates.format(object.create_time, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td>
+                        <form th:action="@{/select}" method="post" style="display: inline;">
+                            <input type="hidden" name="id" th:value="${object.id}" />
+                            <button type="submit">参照</button>
+                        </form>
+                        <form th:action="@{/delete}" method="post" style="display: inline;">
+                            <input type="hidden" name="id" th:value="${object.id}" />
+                            <button type="submit">削除</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

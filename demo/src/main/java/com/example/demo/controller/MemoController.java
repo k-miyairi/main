@@ -1,41 +1,73 @@
 package com.example.demo.controller;
 
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.model.MemoModel;
+
+import com.example.demo.model.Memo;
+import com.example.demo.model.MemoEntity;
 import com.example.demo.service.MemoService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class MemoController {
 	@Autowired
 	private MemoService memoService;
+    //private MemoRepository memoRepository;
 
-	@GetMapping("/newMemo")
-	public String newMemo(@ModelAttribute MemoModel memoModel) {
-		return "newMemo";
+	// ホーム画面
+	@RequestMapping("/")
+	String index(HttpSession session) {
+		List<MemoEntity> memolist = memoService.getAllMemo();
+		session.setAttribute("memolist", memolist);
+		return "memoHome";
 	}
 
-	@GetMapping("/toIndex")
-	public String toIndex() {
-		return "index";
+	// 新規作成画面へ遷移
+	@GetMapping("/toMemoCreate")
+	public String toMemoCreate(@ModelAttribute Memo memo) {
+		return "memoCreate";
 	}
 
+	// 登録
 	@PostMapping("/createMemo")
-	public String createMemo(MemoModel memoModel) {
+	public String createMemo(Memo memo, HttpSession session) {
 
-		memoService.createMemo(memoModel.getTitle(), memoModel.getContent());
-		// int key = 1;
-		// System.out.println(memoModel.getTitle());
-		// System.out.println(memoModel.getContent());
-		// System.out.println(memoService.getMemo(key).toString());
-		return "index";
+		if ((memo.getTitle()).isEmpty()) {
+			return "memoCreate";
+		} else {
+			memoService.createMemo(memo.getTitle(), memo.getContent());
+			session.setAttribute("memolist", memoService.getAllMemo());
+		}
+		return "memoHome";
 	}
 
-	// public String greeting(@RequestParam(name="name", required=false,
-	// defaultValue="World") String name, Model model) {
-	// model.addAttribute("name", name);
-	// return "memo";
-	// }
+	// 参照
+	@PostMapping("/select")
+	public String selectMemo(@RequestParam("id") int id, HttpSession session) {
+		MemoEntity memoEntity = memoService.selectMemo(id);
+		session.setAttribute("memo", memoEntity);
+		return "memoDetail";
+	}
+
+	// 削除
+	@PostMapping("/delete")
+	public String deleteMemo(@RequestParam("id") int id, HttpSession session) {
+		memoService.deleteMemo(id);
+		session.setAttribute("memolist", memoService.getAllMemo());
+		return "memoHome";
+	}
+
+	// 戻る
+	@GetMapping("/toHome")
+	public String toHome() {
+		// model.addAttribute("memolist", memoService.getAllMemo());
+		return "memoHome";
+	}
+
 }

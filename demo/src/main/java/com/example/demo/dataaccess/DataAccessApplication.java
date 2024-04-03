@@ -1,10 +1,12 @@
 package com.example.demo.dataaccess;
 
-import java.util.Map;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import com.example.demo.model.MemoEntity;
 
 @Repository
 public class DataAccessApplication {
@@ -13,22 +15,35 @@ public class DataAccessApplication {
     private JdbcTemplate jdbcTemplate;
 
     // メモの検索
-    public Map<String, Object> findMemo(int id) {
+    public MemoEntity findMemo(int id) {
 
         // SELECT文
         String query = "SELECT * "
                 + "FROM memo "
-                + "WHERE id =?";
+                + "WHERE id = ?";
 
         // 検索実行
-        Map<String, Object> memo = jdbcTemplate.queryForMap(query, id);
-        return memo;
+        List<MemoEntity> result = jdbcTemplate.query(query, new ObjectRowMapper() ,id);
+        return result.get(0);
     }
 
-    // メモの検索
-    public void insertMemo(String title, String content) {
+    // メモの全件検索
+    public List<MemoEntity> findMemoAll() {
 
         // SELECT文
+        String query = "SELECT * "
+                + "FROM memo ";
+
+        // 検索実行
+        List<MemoEntity> listmemo = jdbcTemplate.query(query, new ObjectRowMapper());
+
+        return listmemo;
+    }
+
+    // メモの登録
+    public void insertMemo(String title, String content) {
+
+        // INSERT文
         String query = "INSERT INTO memo(title,content) "
                 + "VALUES(?,?)";
 
@@ -36,4 +51,17 @@ public class DataAccessApplication {
         jdbcTemplate.update(query, title, content);
 
     }
+
+    // メモの削除
+    public void deleteMemo(int id) {
+
+        // DELETE文
+        String query = "DELETE FROM memo "
+                + "WHERE id = ?";
+
+        // 検索実行
+        jdbcTemplate.update(query, id);
+
+    }
+
 }
