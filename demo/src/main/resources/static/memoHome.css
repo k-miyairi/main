@@ -1,8 +1,14 @@
 /* styles.css */
 .create {
     position: absolute;
-    top: 40px;
-    left: 750px;
+    top: 20px;
+    right: 20px;
+}
+
+.sort {
+    position: absolute;
+    top: 80px;
+    right: 20px;
 }
 
 table {

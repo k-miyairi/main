@@ -15,7 +15,6 @@ public class ObjectRowMapper implements RowMapper<MemoEntity> {
         memoEntity.setTitle(rs.getString("title"));
         memoEntity.setContent(rs.getString("content"));
         memoEntity.setCreate_time(rs.getTimestamp("create_time"));
-        memoEntity.setUpdate_time(rs.getTimestamp("update_time"));
 
         return memoEntity;
     }

@@ -12,18 +12,34 @@
     <div class="container">
         <p class="create"><a href="/toMemoCreate">新規作成</a></p>
         <h1>一覧</h1>
+        <div class=" sort">
+            <form th:action="@{/sort}" method="get">
+                <label for="sortKey">ソートキー:</label>
+                <select id="sortKey" name="sortKey">
+                    <option value="id" selected>ID</option>
+                    <option value="title">タイトル</option>
+                    <option value="create_time">登録日時</option>
+                    <label for="sortDirection">並び順:</label>
+                </select>
+                <select id="sortDirection" name="sortDirection">
+                    <option value="asc" selected>昇順</option>
+                    <option value="desc">降順</option>
+                </select>
+                <button type="submit">ソート</button>
+            </form>
+        </div>
         <table>
             <thead>
                 <tr>
                     <th class="col1">タイトル</th>
                     <th class="col2">作成日時</th>
-                    <th class="col3">Action</th>
+                    <th class="col3"></th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="object : ${session.memolist}">
+                <tr th:each="object : ${sortMemoList}">
                     <td th:text="${object.title}"></td>
-                    <td th:text="${#dates.format(object.create_time, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${#dates.format(object.create_time, 'yyyy-MM-dd HH:mm')}"></td>
                     <td>
                         <form th:action="@{/select}" method="post" style="display: inline;">
                             <input type="hidden" name="id" th:value="${object.id}" />

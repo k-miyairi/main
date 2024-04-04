@@ -1,13 +1,16 @@
 package com.example.demo.controller;
 
-
+import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-
+import com.example.demo.dataaccess.MemoRepository;
 import com.example.demo.model.Memo;
 import com.example.demo.model.MemoEntity;
 import com.example.demo.service.MemoService;
@@ -16,15 +19,21 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class MemoController {
+
+	@Autowired
+	private MemoRepository memoRepository;
 	@Autowired
 	private MemoService memoService;
-    //private MemoRepository memoRepository;
 
 	// ホーム画面
 	@RequestMapping("/")
-	String index(HttpSession session) {
-		List<MemoEntity> memolist = memoService.getAllMemo();
-		session.setAttribute("memolist", memolist);
+	String index(HttpSession session, Model model) {
+		// List<MemoEntity> memolist = memoService.getAllMemo();
+
+		session.setAttribute("memolist", findAll());
+		@SuppressWarnings("unchecked")
+		List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
+		model.addAttribute("sortMemoList", memolist);
 		return "memoHome";
 	}
 
@@ -34,40 +43,116 @@ public class MemoController {
 		return "memoCreate";
 	}
 
+	// 更新画面へ遷移
+	@GetMapping("/toUpdate")
+	public String toUpdate() {
+		return "memoEdit";
+	}
+
+	// 戻る（ホーム画面）
+	@GetMapping("/toHome")
+	public String toHome(Model model, HttpSession session) {
+		session.setAttribute("memolist", findAll());
+		@SuppressWarnings("unchecked")
+		List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
+		model.addAttribute("sortMemoList", memolist);
+		return "memoHome";
+	}
+
+	// 戻る（詳細画面）
+	@GetMapping("/toDetail")
+	public String toDetail() {
+		return "memoDetail";
+	}
+
+	// 詳細表示
+	@PostMapping("/select")
+	public String selectMemo(@RequestParam("id") int id, HttpSession session, MemoEntity memoEntity) {
+		// memoEntity = memoService.selectMemo(id);
+		// 検索
+		memoEntity = memoRepository.findById(id);
+
+		session.setAttribute("memo", memoEntity);
+		return "memoDetail";
+	}
+
 	// 登録
 	@PostMapping("/createMemo")
-	public String createMemo(Memo memo, HttpSession session) {
+	public String createMemo(MemoEntity memoEntity, Memo memo, HttpSession session, Model model) {
 
 		if ((memo.getTitle()).isEmpty()) {
 			return "memoCreate";
 		} else {
-			memoService.createMemo(memo.getTitle(), memo.getContent());
-			session.setAttribute("memolist", memoService.getAllMemo());
+			memoEntity.setTitle(memo.getTitle());
+			memoEntity.setContent(memo.getContent());
+			memoEntity.setCreate_time(new Timestamp(System.currentTimeMillis()));
+			memoEntity.setCreate_time(new Timestamp(System.currentTimeMillis()));
+
+			// 登録
+			memoRepository.save(memoEntity);
+
+			session.setAttribute("memolist", findAll());
+			@SuppressWarnings("unchecked")
+			List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
+			model.addAttribute("sortMemoList", memolist);
 		}
 		return "memoHome";
 	}
 
-	// 参照
-	@PostMapping("/select")
-	public String selectMemo(@RequestParam("id") int id, HttpSession session) {
-		MemoEntity memoEntity = memoService.selectMemo(id);
-		session.setAttribute("memo", memoEntity);
+	// 更新
+	@PostMapping("/update")
+	public String updateMemo(@RequestParam("id") int id, HttpSession session, MemoEntity memoEntity, Memo memo) {
+
+		memoEntity = memoRepository.findById(id);
+		if (!memoEntity.getTitle().equals(memo.getTitle()) || !memoEntity.getContent().equals(memo.getContent())) {
+			memoEntity.setTitle(memo.getTitle());
+			memoEntity.setContent(memo.getContent());
+			memoEntity.setCreate_time(new Timestamp(System.currentTimeMillis()));
+
+			// 更新
+			memoRepository.save(memoEntity);
+
+			// 検索
+			memoEntity = memoRepository.findById(id);
+
+			session.setAttribute("memo", memoEntity);
+		}
 		return "memoDetail";
 	}
 
 	// 削除
 	@PostMapping("/delete")
-	public String deleteMemo(@RequestParam("id") int id, HttpSession session) {
-		memoService.deleteMemo(id);
-		session.setAttribute("memolist", memoService.getAllMemo());
+	public String deleteMemo(@RequestParam("id") int id, HttpSession session, Model model) {
+		// 削除
+		memoRepository.deleteById(id);
+
+		session.setAttribute("memolist", findAll());
+		@SuppressWarnings("unchecked")
+		List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
+		model.addAttribute("sortMemoList", memolist);
 		return "memoHome";
 	}
 
-	// 戻る
-	@GetMapping("/toHome")
-	public String toHome() {
-		// model.addAttribute("memolist", memoService.getAllMemo());
+	// ソート
+	@GetMapping("/sort")
+	public String getMemoList(@RequestParam("sortKey") String sortKey,
+			@RequestParam("sortDirection") String sortDirection, HttpSession session, Model model) {
+		List<MemoEntity> memoList = findAll();
+
+		Comparator<MemoEntity> comparator = memoService.sort(sortKey, sortDirection);
+		Collections.sort(memoList, comparator);
+
+		session.setAttribute("memolist", memoList);
+		@SuppressWarnings("unchecked")
+		List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
+		model.addAttribute("sortMemoList", memolist);
 		return "memoHome";
+	}
+
+	// 全件検索
+	public List<MemoEntity> findAll() {
+		List<MemoEntity> memoEntity = memoRepository.findAll();
+		return memoEntity;
 	}
 
 }
