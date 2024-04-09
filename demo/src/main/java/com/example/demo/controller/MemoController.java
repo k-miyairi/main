@@ -1,13 +1,7 @@
 package com.example.demo.controller;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,7 +25,7 @@ public class MemoController {
 
 	// ホーム画面
 	@RequestMapping("/")
-	String index(HttpSession session, Model model) {
+	public String index(HttpSession session, Model model) {
 		session.invalidate();
 
 		model.addAttribute("sortMemoList", findAll());
@@ -66,7 +60,6 @@ public class MemoController {
 	// 詳細表示
 	@PostMapping("/select")
 	public String selectMemo(@RequestParam("id") int id, HttpSession session, MemoEntity memoEntity) {
-		// memoEntity = memoService.selectMemo(id);
 		// 検索
 		memoEntity = memoRepository.findById(id);
 
