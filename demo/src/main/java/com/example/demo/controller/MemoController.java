@@ -1,9 +1,13 @@
 package com.example.demo.controller;
 
 import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.Comparator;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,12 +32,9 @@ public class MemoController {
 	// ホーム画面
 	@RequestMapping("/")
 	String index(HttpSession session, Model model) {
-		// List<MemoEntity> memolist = memoService.getAllMemo();
+		session.invalidate();
 
-		session.setAttribute("memolist", findAll());
-		@SuppressWarnings("unchecked")
-		List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
-		model.addAttribute("sortMemoList", memolist);
+		model.addAttribute("sortMemoList", findAll());
 		return "memoHome";
 	}
 
@@ -52,10 +53,7 @@ public class MemoController {
 	// 戻る（ホーム画面）
 	@GetMapping("/toHome")
 	public String toHome(Model model, HttpSession session) {
-		session.setAttribute("memolist", findAll());
-		@SuppressWarnings("unchecked")
-		List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
-		model.addAttribute("sortMemoList", memolist);
+		model.addAttribute("sortMemoList", findAll());
 		return "memoHome";
 	}
 
@@ -85,16 +83,13 @@ public class MemoController {
 		} else {
 			memoEntity.setTitle(memo.getTitle());
 			memoEntity.setContent(memo.getContent());
-			memoEntity.setCreate_time(new Timestamp(System.currentTimeMillis()));
+
 			memoEntity.setCreate_time(new Timestamp(System.currentTimeMillis()));
 
 			// 登録
 			memoRepository.save(memoEntity);
 
-			session.setAttribute("memolist", findAll());
-			@SuppressWarnings("unchecked")
-			List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
-			model.addAttribute("sortMemoList", memolist);
+			model.addAttribute("sortMemoList", findAll());
 		}
 		return "memoHome";
 	}
@@ -122,30 +117,26 @@ public class MemoController {
 
 	// 削除
 	@PostMapping("/delete")
-	public String deleteMemo(@RequestParam("id") int id, HttpSession session, Model model) {
+	public String deleteMemo(@RequestParam("id") int id, Model model) {
 		// 削除
 		memoRepository.deleteById(id);
 
-		session.setAttribute("memolist", findAll());
-		@SuppressWarnings("unchecked")
-		List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
-		model.addAttribute("sortMemoList", memolist);
+		model.addAttribute("sortMemoList", findAll());
 		return "memoHome";
 	}
 
 	// ソート
 	@GetMapping("/sort")
 	public String getMemoList(@RequestParam("sortKey") String sortKey,
-			@RequestParam("sortDirection") String sortDirection, HttpSession session, Model model) {
+			@RequestParam("sortDirection") String sortDirection, Model model, HttpSession session) {
 		List<MemoEntity> memoList = findAll();
 
-		Comparator<MemoEntity> comparator = memoService.sort(sortKey, sortDirection);
-		Collections.sort(memoList, comparator);
+		memoList = memoService.sort(memoList, sortKey, sortDirection);
 
-		session.setAttribute("memolist", memoList);
-		@SuppressWarnings("unchecked")
-		List<MemoEntity> memolist = (List<MemoEntity>) session.getAttribute("memolist");
-		model.addAttribute("sortMemoList", memolist);
+		session.setAttribute("sortKey", sortKey);
+		session.setAttribute("sortDirection", sortDirection);
+
+		model.addAttribute("sortMemoList", memoList);
 		return "memoHome";
 	}
 
@@ -155,4 +146,9 @@ public class MemoController {
 		return memoEntity;
 	}
 
+	// 全件検索(jdbcTemplate)
+	public List<MemoEntity> getAllMemo() {
+		List<MemoEntity> memolist = memoService.getAllMemo();
+		return memolist;
+	}
 }

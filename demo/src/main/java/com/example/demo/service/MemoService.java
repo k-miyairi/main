@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.example.demo.model.MemoEntity;
 import com.example.demo.dataaccess.DataAccessApplication;
@@ -38,31 +40,41 @@ public class MemoService {
         daa.deleteMemo(id);
     }
 
-    public Comparator<MemoEntity> sort(String key, String direction) {
+    public List<MemoEntity> sort(List<MemoEntity> memoList, String key, String direction) {
+        Stream<MemoEntity> entityStream = memoList.stream();
 
         if (direction.equals("asc")) {
             switch (key) {
                 case "id":
-                    return Comparator.comparing(MemoEntity::getId);
+                    entityStream = entityStream.sorted(Comparator.comparing(MemoEntity::getId));
+                    break;
                 case "title":
-                    return Comparator.comparing(MemoEntity::getTitle);
+                    entityStream = entityStream.sorted(Comparator.comparing(MemoEntity::getTitle));
+                    break;
                 case "create_time":
-                    return Comparator.comparing(MemoEntity::getCreate_time);
+                    entityStream = entityStream.sorted(Comparator.comparing(MemoEntity::getCreate_time));
+                    break;
                 default:
                     throw new IllegalArgumentException("Invalid sort key: " + key);
             }
+
         } else {
             switch (key) {
                 case "id":
-                    return Comparator.comparing(MemoEntity::getId).reversed();
+                    entityStream = entityStream.sorted(Comparator.comparing(MemoEntity::getId).reversed());
+                    break;
                 case "title":
-                    return Comparator.comparing(MemoEntity::getTitle).reversed();
+                    entityStream = entityStream.sorted(Comparator.comparing(MemoEntity::getTitle).reversed());
+                    break;
                 case "create_time":
-                    return Comparator.comparing(MemoEntity::getCreate_time).reversed();
+                    entityStream = entityStream.sorted(Comparator.comparing(MemoEntity::getCreate_time).reversed());
+                    break;
                 default:
                     throw new IllegalArgumentException("Invalid sort key: " + key);
             }
         }
+
+        return entityStream.collect(Collectors.toList());
     }
 
 }

@@ -10,20 +10,19 @@
 
 <body>
     <div class="container">
-        <p class="create"><a href="/toMemoCreate">新規作成</a></p>
+        <button class="create" onclick="window.location.href='/toMemoCreate'">新規作成</button>
         <h1>一覧</h1>
         <div class=" sort">
             <form th:action="@{/sort}" method="get">
-                <label for="sortKey">ソートキー:</label>
                 <select id="sortKey" name="sortKey">
-                    <option value="id" selected>ID</option>
-                    <option value="title">タイトル</option>
-                    <option value="create_time">登録日時</option>
-                    <label for="sortDirection">並び順:</label>
+                    <option value="id" th:selected="${session.sortKey == null or session.sortKey == 'id'}">作成順</option>
+                    <option value="title" th:selected="${session.sortKey == 'title'}">タイトル</option>
+                    <option value="create_time" th:selected="${session.sortKey == 'create_time'}">更新日時</option>
                 </select>
                 <select id="sortDirection" name="sortDirection">
-                    <option value="asc" selected>昇順</option>
-                    <option value="desc">降順</option>
+                    <option value="asc"
+                        th:selected="${session.sortDirection == null or session.sortDirection == 'asc'}">昇順</option>
+                    <option value="desc" th:selected="${session.sortDirection == 'desc'}">降順</option>
                 </select>
                 <button type="submit">ソート</button>
             </form>
@@ -32,7 +31,7 @@
             <thead>
                 <tr>
                     <th class="col1">タイトル</th>
-                    <th class="col2">作成日時</th>
+                    <th class="col2">更新日時</th>
                     <th class="col3"></th>
                 </tr>
             </thead>
