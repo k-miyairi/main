@@ -12,9 +12,19 @@
     <div class="container">
         <div>
             <h1></h1>
-            <div>
-                <img src="images/create.png" alt="Button Image" class="create"
-                    onclick="window.location.href='/toMemoCreate'">
+            <div class="buttonArea">
+                <!-- 作成ボタン -->
+                <button onclick="window.location.href='/toMemoCreate'">作成</button>
+                <!-- 表示ボタン -->
+                <button onclick="displaySelected()">表示</button>
+                <form id="displayForm" th:action="@{/select}" method="post" style="display: none;">
+                    <input type="hidden" name="id" />
+                </form>
+                <!-- 削除ボタン -->
+                <button onclick="deleteSelected()">削除</button>
+                <form id="deleteForm" th:action="@{/delete}" method="post" style="display: none;">
+                    <input type="hidden" name="id" />
+                </form>
             </div>
             <div class=" sort">
                 <form th:action="@{/sort}" method="get">
@@ -22,7 +32,7 @@
                         <option value="id" th:selected="${session.sortKey == null or session.sortKey == 'id'}">作成順
                         </option>
                         <option value="title" th:selected="${session.sortKey == 'title'}">タイトル</option>
-                        <option value="create_time" th:selected="${session.sortKey == 'create_time'}">更新日時</option>
+                        <option value="create_time" th:selected="${session.sortKey == 'create_time'}">登録日時</option>
                     </select>
                     <select id="sortDirection" name="sortDirection">
                         <option value="asc"
@@ -37,25 +47,17 @@
             <table>
                 <thead>
                     <tr>
+                        <th class="col0"></th>
                         <th class="col1">タイトル</th>
-                        <th class="col2">更新日時</th>
-                        <th class="col3"></th>
+                        <th class="col2">登録日時</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="object : ${session.sortMemoList}">
+                    <tr th:each="object : ${session.sortMemoList}" onclick="selectRow(this)">
+                        <td class="col0"><input type="radio" name="selectedMemo" th:value="${object.id}"
+                                th:checked="${session.sortMemoList[0] == object}" /></td>
                         <td class="col1" th:text="${object.title}"></td>
                         <td class="col2" th:text="${#dates.format(object.create_time, 'yyyy/MM/dd HH:mm')}"></td>
-                        <td class="col3">
-                            <form th:action="@{/select}" method="post" style="display: inline;">
-                                <input type="hidden" name="id" th:value="${object.id}" />
-                                <button type="submit">表示</button>
-                            </form>
-                            <form th:action="@{/delete}" method="post" style="display: inline;">
-                                <input type="hidden" name="id" th:value="${object.id}" />
-                                <button type="submit">削除</button>
-                            </form>
-                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -65,6 +67,7 @@
             <p class="message" th:text="${message}"></p>
         </div>
     </div>
+    <script src="memoHome.js"></script>
 </body>
 
 </html>

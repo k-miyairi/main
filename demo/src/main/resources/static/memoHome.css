@@ -3,20 +3,13 @@
 .dataArea {
     position: absolute;
     top: 90px;
-}
-
-.create {
-    position: absolute;
-    top: 55px;
-    right: 50px;
-    width: 30px;
-    height: 30px;
+    border: 1px solid #000000;
 }
 
 .sort {
     position: absolute;
     top: 55px;
-    left: 30px;
+    left: 20px;
 }
 
 table {
@@ -31,28 +24,28 @@ td {
     text-align: left;
 }
 
+th.col0 {
+    min-width: 25px;
+}
+
+td.col0 {
+    min-width: 25px;
+}
+
 th.col1 {
-    width: 480px;
+    min-width: 550px;
 }
 
 td.col1 {
-    width: 480px;
+    min-width: 550px;
 }
 
 th.col2 {
-    width: 150px;
+    min-width: 173px;
 }
 
 td.col2 {
-    width: 150px;
-}
-
-th.col3 {
-    width: 100px;
-}
-
-td.col3 {
-    width: 100px;
+    min-width: 157px;
 }
 
 thead {
@@ -63,9 +56,20 @@ tbody {
     display: block;
     overflow-y: scroll;
     height: 345px;
-    border: 1px solid #000000;
 }
 
-.create:hover {
-    cursor: pointer;
+.buttonArea {
+    position: absolute;
+    top: 55px;
+    right: 20px;
+}
+
+/* 偶数番目の行 */
+tr:nth-child(even) {
+    background-color: #fffff0;
+}
+
+/* 奇数番目の行 */
+tr:nth-child(odd) {
+    background-color: #ffffff;
 }
