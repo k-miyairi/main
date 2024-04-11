@@ -6,12 +6,13 @@ label {
 }
 
 input[type="text"] {
-    width: 350px;
+    width: 750px;
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 3px;
     box-sizing: border-box;
+    background-color: #ffffcc;
     margin-left: 20px;
 }
 
@@ -22,7 +23,9 @@ textarea {
     border: 1px solid #ccc;
     border-radius: 3px;
     box-sizing: border-box;
+    background-color: #ffffcc;
     margin-left: 20px;
+    font-family: Arial, sans-serif;
 }
 
 .button1 {
