@@ -22,6 +22,7 @@
                 <textarea id="content" th:field="*{content}" rows=" 20" maxlength="400"
                     th:text="${session.memo.content}"></textarea>
             </div>
+            <input type="hidden" name="token" th:value="${token}" />
             <button class="button1" type="submit">作成</button>
         </form>
         <button class="button2" onclick="window.location.href='/toHome'">戻る</button>

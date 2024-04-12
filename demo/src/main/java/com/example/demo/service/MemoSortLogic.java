@@ -6,24 +6,7 @@ import java.util.stream.Collectors;
 
 import com.example.demo.model.MemoEntity;
 
-import jakarta.servlet.http.HttpSession;
-
-import org.springframework.stereotype.Service;
-
-@Service
-public class MemoService {
-
-    private static final int TITLE_MAX_LEN = 30;
-
-    private static final int CONTENT_MAX_LEN = 400;
-
-    private static final String BLANK = "";
-
-    private static final String TITLE_BLANK_MSG = "エラー：タイトルを入力してください。";
-
-    private static final String TITLE_MAX_LEN_MSG = "エラー：タイトルは30字以内で入力してください。";
-
-    private static final String CONTENT_MAX_LEN_MSG = "エラー：内容は400字以内で入力してください。";
+public class MemoSortLogic {
 
     // ソート
     public List<MemoEntity> sort(List<MemoEntity> memoList, String key, String direction) {
@@ -62,45 +45,4 @@ public class MemoService {
         }
     }
 
-    // キーワード検索
-    public List<MemoEntity> search(List<MemoEntity> memoList, String keyword) {
-        if (keyword.isEmpty()) {
-            return memoList;
-        } else {
-            return memoList.stream()
-                    .filter(memo -> memo.getTitle().contains(keyword) || memo.getContent().contains(keyword))
-                    .collect(Collectors.toList());
-        }
-    }
-
-    public String chkTitle(String str) {
-        if (str.isEmpty()) {
-            return TITLE_BLANK_MSG;
-        } else {
-            if (str.length() > TITLE_MAX_LEN) {
-                return TITLE_MAX_LEN_MSG;
-            } else {
-                return BLANK;
-            }
-        }
-    }
-
-    public String chkContent(String str) {
-        if (str.length() > CONTENT_MAX_LEN) {
-            return CONTENT_MAX_LEN_MSG;
-        } else {
-            return BLANK;
-        }
-    }
-
-    public Boolean chkToken(HttpSession session, String token) {
-        String sessionToken = (String) session.getAttribute("token");
-        if (sessionToken != null && sessionToken.equals(token)) {
-            // トークンが一致した場合
-            return true;
-        } else {
-            // トークンが一致しない場合
-            return false;
-        }
-    }
 }

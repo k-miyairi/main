@@ -12,20 +12,6 @@
     <div class="container">
         <div>
             <h1></h1>
-            <div class="buttonArea">
-                <!-- 作成ボタン -->
-                <button onclick="window.location.href='/toMemoCreate'">作成</button>
-                <!-- 表示ボタン -->
-                <button onclick="displaySelected()">表示</button>
-                <form id="displayForm" th:action="@{/select}" method="post" style="display: none;">
-                    <input type="hidden" name="id" />
-                </form>
-                <!-- 削除ボタン -->
-                <button onclick="deleteSelected()">削除</button>
-                <form id="deleteForm" th:action="@{/delete}" method="post" style="display: none;">
-                    <input type="hidden" name="id" />
-                </form>
-            </div>
             <div class=" sort">
                 <form th:action="@{/sort}" method="get">
                     <select id="sortKey" name="sortKey">
@@ -39,7 +25,31 @@
                             th:selected="${session.sortDirection == null or session.sortDirection == 'asc'}">昇順</option>
                         <option value="desc" th:selected="${session.sortDirection == 'desc'}">降順</option>
                     </select>
+                    <input type="hidden" name="token" th:value="${token}" />
                     <button type="submit">ソート</button>
+                </form>
+            </div>
+            <div class="searchArea">
+                <form th:action="@{/search}" method="post">
+                    <input type="hidden" name="token" th:value="${token}" />
+                    <input id="keyword" type="text" th:value="${session.keyword}" name="keyword" maxlength="10"
+                        autocomplete="off">
+                    <button type="submit">検索</button>
+                </form>
+            </div>
+            <div class="buttonArea">
+                <!-- 作成ボタン -->
+                <button onclick="window.location.href='/toMemoCreate'">作成</button>
+                <!-- 表示ボタン -->
+                <button onclick="displaySelected()">表示</button>
+                <form id="displayForm" th:action="@{/select}" method="post" style="display: none;">
+                    <input type="hidden" name="id" />
+                </form>
+                <!-- 削除ボタン -->
+                <button onclick="deleteSelected()">削除</button>
+                <form id="deleteForm" th:action="@{/delete}" method="post" style="display: none;">
+                    <input type="hidden" name="token" th:value="${token}" />
+                    <input type="hidden" name="id" />
                 </form>
             </div>
         </div>

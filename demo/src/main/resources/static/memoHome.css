@@ -73,3 +73,13 @@ tr:nth-child(even) {
 tr:nth-child(odd) {
     background-color: #ffffff;
 }
+
+th {
+    background-color: #ffffcc;
+}
+
+.searchArea {
+    position: absolute;
+    top: 55px;
+    left: 250px;
+}
