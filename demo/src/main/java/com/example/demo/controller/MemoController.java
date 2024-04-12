@@ -200,8 +200,9 @@ public class MemoController {
 			return "memoHome";
 		}
 
-		@SuppressWarnings("unchecked")
-		List<MemoEntity> memoList = (List<MemoEntity>) session.getAttribute("sortMemoList");
+		String sortKey = (String) session.getAttribute("sortKey");
+		String sortDirection = (String) session.getAttribute("sortDirection");
+		List<MemoEntity> memoList = memoService.sort(memoRepository.findAll(), sortKey, sortDirection);
 		session.setAttribute("sortMemoList", memoService.search(memoList, keyword));
 		session.setAttribute("keyword", keyword);
 
