@@ -8,17 +8,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.ui.Model;
 
 import com.example.demo.model.MemoEntity;
 import com.example.demo.service.MemoService;
+
+import jakarta.servlet.http.HttpSession;
 
 @SpringBootTest
 public class MemoServiceTests {
 
     @Autowired
     private MemoService memoService;
+
+    @Mock
+    private HttpSession session;
+
+    @Mock
+    private Model model;
 
     @Test
     public void testSortIdAsc() {
@@ -154,6 +165,42 @@ public class MemoServiceTests {
         assertEquals("エラー：内容は400字以内で入力してください。", result);
     }
 
+    @Test
+    public void testSearch() {
+        String keyword = "title2";
+        List<MemoEntity> memoList = new ArrayList<>();
+        memoList = memoService.search(memoList(), keyword);
+
+        assertEquals(memoList_search(), memoList);
+    }
+
+    @Test
+    public void testSearchBlank() {
+        String keyword = "";
+        List<MemoEntity> memoList = new ArrayList<>();
+        memoList = memoService.search(memoList(), keyword);
+
+        assertEquals(memoList(), memoList);
+    }
+
+    @Test
+    public void testChkTokenTrue() {
+        String token = "ok";
+        Mockito.when(session.getAttribute("token")).thenReturn("ok");
+        Boolean result = memoService.chkToken(session, token);
+
+        assertEquals(true, result);
+    }
+
+    @Test
+    public void testChkTokenFalse() {
+        String token = "ng";
+        Mockito.when(session.getAttribute("token")).thenReturn("ok");
+        Boolean result = memoService.chkToken(session, token);
+
+        assertEquals(false, result);
+    }
+
     public List<MemoEntity> memoList() {
         List<MemoEntity> memoList = new ArrayList<>();
 
@@ -190,6 +237,19 @@ public class MemoServiceTests {
         memo2.setContent("content");
         memo2.setCreate_time(Timestamp.valueOf("2024-04-10 09:00:00.01"));
         memoList.add(memo2);
+
+        return memoList;
+    }
+
+    public List<MemoEntity> memoList_search() {
+        List<MemoEntity> memoList = new ArrayList<>();
+
+        MemoEntity memo1 = new MemoEntity();
+        memo1.setId(2);
+        memo1.setTitle("title2");
+        memo1.setContent("content");
+        memo1.setCreate_time(Timestamp.valueOf("2024-04-11 09:00:00.01"));
+        memoList.add(memo1);
 
         return memoList;
     }

@@ -107,12 +107,13 @@ public class DemoApplicationTests {
 
 	@Test
 	public void testCreateMemo() {
-		// Mock 条件あり
-		Mockito.when(memoRepository.save(Mockito.any())).thenReturn(memoEntity());
+		// Mock
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(true);
 		Mockito.when(memoService.chkTitle(Mockito.anyString())).thenReturn("");
 		Mockito.when(memoService.chkContent(Mockito.anyString())).thenReturn("");
+		Mockito.when(memoRepository.save(Mockito.any())).thenReturn(memoEntity());
 
-		String formData = "title=title&content=content";
+		String formData = "title=title&content=content&token=ok";
 
 		try {
 			mvc.perform(MockMvcRequestBuilders.post("/createMemo")
@@ -129,8 +130,26 @@ public class DemoApplicationTests {
 	}
 
 	@Test
+	public void testCreateMemo_Error_Token() {
+		String formData = "title=title&content=content&token=ng";
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(false);
+
+		try {
+			mvc.perform(MockMvcRequestBuilders.post("/createMemo")
+					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+					.session(setSession())
+					.content(formData))
+					.andExpect(MockMvcResultMatchers.status().isOk())
+					.andExpect(MockMvcResultMatchers.view().name("memoHome"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
 	public void testCreateMemo_Error_title() {
-		String formData = "title=&content=content";
+		String formData = "title=&content=content&token=ok";
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(true);
 		Mockito.when(memoService.chkTitle(Mockito.anyString())).thenReturn("error");
 
 		try {
@@ -147,7 +166,8 @@ public class DemoApplicationTests {
 
 	@Test
 	public void testCreateMemo_Error_content() {
-		String formData = "title=title&content=content";
+		String formData = "title=title&content=content&token=ok";
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(true);
 		Mockito.when(memoService.chkTitle(Mockito.anyString())).thenReturn("");
 		Mockito.when(memoService.chkContent(Mockito.anyString())).thenReturn("error");
 
@@ -165,15 +185,14 @@ public class DemoApplicationTests {
 
 	@Test
 	public void testUpdateMemo() {
-		// Mock 条件あり
+		// Mock
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(true);
 		Mockito.when(memoRepository.save(Mockito.any())).thenReturn(memoEntity());
 		Mockito.when(memoService.chkTitle(Mockito.anyString())).thenReturn("");
 		Mockito.when(memoService.chkContent(Mockito.anyString())).thenReturn("");
-
-		// Mock
 		Mockito.when(memoRepository.findById(Mockito.anyInt())).thenReturn(memoEntity());
 
-		String formData = "title=title&content=content";
+		String formData = "title=title&content=content&token=ok";
 
 		try {
 			mvc.perform(MockMvcRequestBuilders.post("/update")
@@ -192,11 +211,30 @@ public class DemoApplicationTests {
 	}
 
 	@Test
+	public void testUpdateMemo_Error_Token() {
+		String formData = "title=title&content=content&token=ng";
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(false);
+
+		try {
+			mvc.perform(MockMvcRequestBuilders.post("/update")
+					.param("id", "1")
+					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+					.session(setSession())
+					.content(formData))
+					.andExpect(MockMvcResultMatchers.status().isOk())
+					.andExpect(MockMvcResultMatchers.view().name("memoHome"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
 	public void testUpdateMemo_Error_title() {
 		// Mock
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(true);
 		Mockito.when(memoService.chkTitle(Mockito.anyString())).thenReturn("error");
 
-		String formData = "title=&content=content";
+		String formData = "title=&content=content&token=ok";
 
 		try {
 			mvc.perform(MockMvcRequestBuilders.post("/update")
@@ -214,10 +252,11 @@ public class DemoApplicationTests {
 	@Test
 	public void testUpdateMemo_Error_content() {
 		// Mock
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(true);
 		Mockito.when(memoService.chkTitle(Mockito.anyString())).thenReturn("");
 		Mockito.when(memoService.chkContent(Mockito.anyString())).thenReturn("error");
 
-		String formData = "title=&content=content";
+		String formData = "title=&content=content&token=ok";
 
 		try {
 			mvc.perform(MockMvcRequestBuilders.post("/update")
@@ -234,12 +273,14 @@ public class DemoApplicationTests {
 
 	@Test
 	public void testDeleteMemo() {
-		// Mock 何もしない
+		// Mock
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(true);
 		Mockito.doNothing().when(memoRepository).deleteById(Mockito.anyInt());
 
 		try {
 			mvc.perform(MockMvcRequestBuilders.post("/delete")
-					.param("id", "1"))
+					.param("id", "1")
+					.param("token", "ok"))
 					.andExpect(MockMvcResultMatchers.status().isOk())
 					.andExpect(MockMvcResultMatchers.view().name("memoHome"));
 
@@ -250,17 +291,81 @@ public class DemoApplicationTests {
 	}
 
 	@Test
-	public void testGetMemoList() {
+	public void testDeleteMemo_Error_Token() {
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(false);
+
+		try {
+			mvc.perform(MockMvcRequestBuilders.post("/delete")
+					.param("id", "1")
+					.param("token", "ng"))
+					.andExpect(MockMvcResultMatchers.status().isOk())
+					.andExpect(MockMvcResultMatchers.view().name("memoHome"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSortMemoList() {
 		// Mock
-		Mockito.when(memoRepository.findAll()).thenReturn(memoList());
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(true);
+
 		try {
 			mvc.perform(MockMvcRequestBuilders.get("/sort")
 					.param("sortKey", "id")
-					.param("sortDirection", "asc"))
+					.param("sortDirection", "asc")
+					.param("token", "ok"))
 					.andExpect(MockMvcResultMatchers.status().isOk())
 					.andExpect(MockMvcResultMatchers.view().name("memoHome"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-			Mockito.verify(memoRepository, Mockito.times(1)).findAll();
+	@Test
+	public void testSortMemoList_Error_Token() {
+		// Mock
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(false);
+
+		try {
+			mvc.perform(MockMvcRequestBuilders.get("/sort")
+					.param("sortKey", "id")
+					.param("sortDirection", "asc")
+					.param("token", "ng"))
+					.andExpect(MockMvcResultMatchers.status().isOk())
+					.andExpect(MockMvcResultMatchers.view().name("memoHome"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSearchtMemoList() {
+		// Mock
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(true);
+
+		try {
+			mvc.perform(MockMvcRequestBuilders.post("/search")
+					.param("keyword", "keyword")
+					.param("token", "ok"))
+					.andExpect(MockMvcResultMatchers.status().isOk())
+					.andExpect(MockMvcResultMatchers.view().name("memoHome"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSearchMemoList_Error_Token() {
+		// Mock
+		Mockito.when(memoService.chkToken(Mockito.any(), Mockito.anyString())).thenReturn(false);
+
+		try {
+			mvc.perform(MockMvcRequestBuilders.post("/search")
+					.param("keyword", "keyword")
+					.param("token", "ng"))
+					.andExpect(MockMvcResultMatchers.status().isOk())
+					.andExpect(MockMvcResultMatchers.view().name("memoHome"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

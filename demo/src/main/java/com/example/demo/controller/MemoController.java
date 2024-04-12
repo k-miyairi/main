@@ -132,11 +132,11 @@ public class MemoController {
 		Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 		memoEntity.setCreate_time(currentTime);
 
-		// 更新
 		memoRepository.save(memoEntity);
 
 		clearSession(session);
 		model.addAttribute("message", "保存しました。");
+
 		createToken(session, model);
 		return "memoHome";
 	}
@@ -144,64 +144,64 @@ public class MemoController {
 	// 削除
 	@PostMapping("/delete")
 	public String deleteMemo(@RequestParam("id") int id, Model model, HttpSession session, @RequestParam String token) {
+
 		if (!memoService.chkToken(session, token)) {
 			model.addAttribute("message", "不正な操作です。");
 			createToken(session, model);
 			return "memoHome";
 		}
 
-		// 削除
 		memoRepository.deleteById(id);
 
-		List<MemoEntity> memoList = findAll();
+		List<MemoEntity> memoList = memoRepository.findAll();
 		String sortKey = (String) session.getAttribute("sortKey");
 		String sortDirection = (String) session.getAttribute("sortDirection");
 		memoList = memoService.sort(memoList, sortKey, sortDirection);
+		String keyword = (String) session.getAttribute("keyword");
+		memoList = memoService.search(memoList, keyword);
 
 		session.setAttribute("sortMemoList", memoList);
 		model.addAttribute("message", "削除しました。");
+
 		createToken(session, model);
 		return "memoHome";
 	}
 
 	// ソート
 	@GetMapping("/sort")
-	public String getMemoList(@RequestParam("sortKey") String sortKey,
+	public String sortMemoList(@RequestParam("sortKey") String sortKey,
 			@RequestParam("sortDirection") String sortDirection, Model model, HttpSession session,
 			@RequestParam String token) {
-
+		// Tokenのチェック
 		if (!memoService.chkToken(session, token)) {
-			model.addAttribute("message", "不正な操作です。");
 			createToken(session, model);
 			return "memoHome";
 		}
 
-		List<MemoEntity> memoList = findAll();
-		String keyword = (String) session.getAttribute("keyword");
-		memoList = memoService.search(memoList, keyword);
+		@SuppressWarnings("unchecked")
+		List<MemoEntity> memoList = (List<MemoEntity>) session.getAttribute("sortMemoList");
 
 		session.setAttribute("sortKey", sortKey);
 		session.setAttribute("sortDirection", sortDirection);
 		session.setAttribute("sortMemoList", memoService.sort(memoList, sortKey, sortDirection));
+
 		createToken(session, model);
 		return "memoHome";
 	}
 
-	// キーワード検索
+	// 検索
 	@PostMapping("/search")
-	public String getMemoList(Model model, HttpSession session, @RequestParam String token,
+	public String searchMemoList(Model model, HttpSession session, @RequestParam String token,
 			@RequestParam String keyword) {
+		// Tokenのチェック
 		if (!memoService.chkToken(session, token)) {
 			model.addAttribute("message", "不正な操作です。");
 			createToken(session, model);
 			return "memoHome";
 		}
 
-		List<MemoEntity> memoList = findAll();
-		String sortKey = (String) session.getAttribute("sortKey");
-		String sortDirection = (String) session.getAttribute("sortDirection");
-		memoList = memoService.sort(memoList, sortKey, sortDirection);
-
+		@SuppressWarnings("unchecked")
+		List<MemoEntity> memoList = (List<MemoEntity>) session.getAttribute("sortMemoList");
 		session.setAttribute("sortMemoList", memoService.search(memoList, keyword));
 		session.setAttribute("keyword", keyword);
 
@@ -209,12 +209,7 @@ public class MemoController {
 		return "memoHome";
 	}
 
-	// 全件検索
-	public List<MemoEntity> findAll() {
-		List<MemoEntity> memoEntity = memoRepository.findAll();
-		return memoEntity;
-	}
-
+	// 入力内容の設定
 	public MemoEntity setMemo(HttpSession session, Memo memo) {
 		MemoEntity memoEntity = (MemoEntity) session.getAttribute("memo");
 		memoEntity.setTitle(memo.getTitle());
@@ -223,15 +218,18 @@ public class MemoController {
 		return memoEntity;
 	}
 
+	// セッションの初期化
 	public void clearSession(HttpSession session) {
+		// keyの初期化
 		session.setAttribute("sortKey", "id");
 		session.setAttribute("sortDirection", "asc");
 		session.setAttribute("keyword", "");
-		List<MemoEntity> memoList = findAll();
-		memoList = memoService.sort(memoList, "id", "asc");
+		// 一覧の再設定
+		List<MemoEntity> memoList = memoService.sort(memoRepository.findAll(), "id", "asc");
 		session.setAttribute("sortMemoList", memoList);
 	}
 
+	// Tokenの作成
 	public void createToken(HttpSession session, Model model) {
 		String token = UUID.randomUUID().toString();
 		session.setAttribute("token", token);
